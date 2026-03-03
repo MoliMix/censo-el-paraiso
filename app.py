@@ -10,8 +10,8 @@ st.set_page_config(page_title="Censo El Paraíso", layout="wide", initial_sideba
 st.markdown("""
     <style>
     /* Fondo con degradado sofisticado */
-    .stApp { 
-        background: linear-gradient(135deg, #e9f0ec 0%, #e2e8e9 100%); 
+    .stApp {
+        background: linear-gradient(135deg, #e9f0ec 0%, #e2e8e9 100%);
         font-family: 'Inter', 'Segoe UI', sans-serif;
     }
     
@@ -101,13 +101,10 @@ def validar_geoposicion_hn(extra_data):
             if len(nums) >= 2:
                 try:
                     n1, n2 = float(nums[0]), float(nums[1])
-                    # Verificación de cuadrante HN (Lat: 13-16.5 | Lon: -89.5 a -83)
-                    # Corregimos longitud si falta el signo menos
                     def check(lt, ln):
                         ln_corr = ln if ln < 0 else -ln
                         if 12.8 <= lt <= 17.0 and -89.5 <= ln_corr <= -82.8: return lt, ln_corr
                         return None
-                    
                     res = check(n1, n2) or check(n2, n1)
                     if res: return res
                 except: continue
@@ -151,32 +148,52 @@ def mostrar_ficha(dni):
             if key.startswith("tab_"): del st.session_state[key]
         st.rerun()
 
-# 4. CARGA DE DATOS (SIDEBAR)
+# 4. CARGA DE DATOS (REFORZADO)
 with st.sidebar:
     st.header("📥 Importar Listados")
-    archivo = st.file_uploader("Excel o CSV", type=["xlsx", "csv"])
+    archivos = st.file_uploader("Excel o CSV", type=["xlsx", "csv"], accept_multiple_files=True)
     m_imp = st.selectbox("Municipio", MUNICIPIOS_EP)
-    a_imp = st.text_input("Aldea")
+    a_imp_manual = st.text_input("Aldea (Si no está en el archivo)")
     r_imp = st.selectbox("Rubro", ["Café", "Cacao", "Granos Básicos", "Ganadería", "Hortalizas y Legumbres"])
     v_riego = "General"
     if r_imp == "Granos Básicos" and st.checkbox("Proyecto de Riego"): v_riego = "Beneficiario Proyecto de Riego"
 
-    if archivo and a_imp and st.button("🚀 INICIAR CARGA"):
-        try:
-            df_raw = pd.read_excel(archivo, header=None) if archivo.name.endswith('xlsx') else pd.read_csv(archivo, header=None)
-            fila_head = next(i for i, r in df_raw.iterrows() if any(x in str(v).upper() for x in ['DNI', 'IDENTIDAD', 'NOMBRE'] for v in r))
-            df = pd.read_excel(archivo, skiprows=fila_head) if archivo.name.endswith('xlsx') else pd.read_csv(archivo, skiprows=fila_head)
-            df.columns = [str(col).strip() for col in df.columns]
-            c_dni = next(c for c in df.columns if any(x in c.upper() for x in ['DNI', 'IDENTIDAD']))
-            c_nom = next(c for c in df.columns if any(x in c.upper() for x in ['NOMBRE', 'PRODUCTOR']))
-            cols_ex = [c for c in df.columns if c not in [c_dni, c_nom]]
-            for _, row in df.iterrows():
-                if pd.notna(row[c_dni]):
-                    d_ex = {k: str(row[k]) for k in cols_ex if pd.notna(row[k])}
-                    c.execute("INSERT OR REPLACE INTO productores VALUES (?,?,?,?,?,?,?)", (str(row[c_dni]), str(row[c_nom]), m_imp, r_imp, v_riego, a_imp, json.dumps(d_ex, ensure_ascii=False)))
-            conn.commit()
-            st.success("✅ Censo actualizado.")
-        except: st.error("Error en archivo.")
+    if archivos and st.button("🚀 INICIAR CARGA"):
+        for arc in archivos:
+            try:
+                # 1. Escáner de títulos (Ajustado para detectar DNI e IDENTI)
+                df_raw = pd.read_excel(arc, header=None) if arc.name.endswith('xlsx') else pd.read_csv(arc, header=None)
+                fila_head = 0
+                for i, r in df_raw.iterrows():
+                    row_str = " ".join(str(v).upper() for v in r.values)
+                    if any(x in row_str for x in ['DNI', 'IDENTI', 'NOMBRE', 'PRODUCTOR']):
+                        fila_head = i
+                        break
+                
+                # 2. Re-leer desde la fila correcta
+                arc.seek(0)
+                df = pd.read_excel(arc, skiprows=fila_head) if arc.name.endswith('xlsx') else pd.read_csv(arc, skiprows=fila_head)
+                df.columns = [str(col).strip() for col in df.columns]
+                
+                # 3. Mapeo inteligente (Ajustado para "Identiodad" y "Nombre Productor")
+                c_dni = next(c for c in df.columns if any(x in c.upper() for x in ['DNI', 'IDENTI', 'IDENTIFICACI']))
+                c_nom = next(c for c in df.columns if any(x in c.upper() for x in ['NOMBRE', 'PRODUCTOR']))
+                c_aldea = next((c for c in df.columns if any(x in c.upper() for x in ['ALDEA', 'COMUNIDAD', 'CASERIO'])), None)
+                cols_ex = [c for c in df.columns if c not in [c_dni, c_nom, c_aldea]]
+                
+                for _, row in df.iterrows():
+                    if pd.notna(row[c_dni]) and str(row[c_dni]).strip() != "":
+                        # Limpieza de DNI: Quita espacios y guiones
+                        dni_limpio = str(row[c_dni]).replace(" ", "").replace("-", "").strip()
+                        v_aldea = str(row[c_aldea]).strip() if c_aldea and pd.notna(row[c_aldea]) else a_imp_manual
+                        d_ex = {k: str(row[k]) for k in cols_ex if pd.notna(row[k])}
+                        
+                        c.execute("INSERT OR REPLACE INTO productores VALUES (?,?,?,?,?,?,?)", 
+                                  (dni_limpio, str(row[c_nom]).strip(), m_imp, r_imp, v_riego, v_aldea, json.dumps(d_ex, ensure_ascii=False)))
+                conn.commit()
+                st.sidebar.success(f"✅ Cargado: {arc.name}")
+            except Exception as e:
+                st.sidebar.error(f"❌ Error en {arc.name}: {e}")
 
 # 5. PANEL PRINCIPAL
 total_global = pd.read_sql("SELECT COUNT(*) as total FROM productores", conn).iloc[0]['total']
@@ -239,9 +256,7 @@ else:
             al = pd.read_sql("SELECT DISTINCT aldea FROM productores WHERE rubro=? AND municipio=?", conn, params=(st.session_state.r_sel, mv))['aldea'].tolist()
             av = st.selectbox(f"🏡 ALDEAS EN {mv.upper()}:", ["-- Todas --"] + al, key="asel_rubro")
     with col_f3:
-        bn = ""
-        if mv != "-- Seleccione --" and av != "-- Todas --":
-            bn = st.text_input("🔍 FILTRAR POR NOMBRE:", key="bn_rubro")
+        bn = st.text_input("🔍 FILTRAR POR NOMBRE:", key="bn_rubro")
         fr = "General"
         if st.session_state.r_sel == "Granos Básicos" and st.toggle("Solo Beneficiarios de Riego"): fr = "Beneficiario Proyecto de Riego"
 
