@@ -9,50 +9,53 @@ st.set_page_config(page_title="Censo El Paraíso", layout="wide", initial_sideba
 
 st.markdown("""
     <style>
-    /* Fondo con degradado sofisticado */
+    /* Google Fonts para títulos y textos */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
     .stApp {
         background: linear-gradient(135deg, #e9f0ec 0%, #e2e8e9 100%);
         font-family: 'Inter', 'Segoe UI', sans-serif;
+        min-height: 100vh;
     }
-    
     .header-container {
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
         align-items: center;
         gap: 20px;
         margin-bottom: 35px;
         padding-top: 20px;
+        text-align: center;
     }
-
     .titulo-censo {
-        color: #1b5e20; font-weight: 900; font-size: 2.8rem; margin: 0;
+        color: #1b5e20;
+        font-weight: 900;
+        font-size: 2.8rem;
+        margin: 0;
         letter-spacing: -1px;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
     }
-
-    /* ETIQUETAS DE CONTEO ELEGANTES */
     .badge-total {
         background-color: #1b5e20;
         color: white;
         padding: 6px 18px;
         border-radius: 30px;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 700;
         box-shadow: 0 4px 12px rgba(27, 94, 32, 0.2);
         text-transform: uppercase;
+        letter-spacing: 1px;
     }
-
     .badge-sector {
         background: rgba(255, 255, 255, 0.7);
         color: #1b5e20;
         border: 1px solid rgba(27, 94, 32, 0.3);
         padding: 4px 14px;
         border-radius: 20px;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         font-weight: 700;
         margin-left: 10px;
     }
-    
-    /* TARJETAS DE RUBRO: EL SALTO A LA ELEGANCIA */
+    /* Botones responsivos y glassmorphism */
     div.stButton > button {
         border: 1px solid rgba(255, 255, 255, 0.5) !important;
         background: rgba(255, 255, 255, 0.6) !important;
@@ -66,22 +69,76 @@ st.markdown("""
         text-transform: uppercase !important;
         letter-spacing: 2px !important;
         font-weight: 800 !important;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
     }
-    
     div.stButton > button:hover {
         background: #ffffff !important;
         transform: translateY(-12px) !important;
         box-shadow: 0 20px 40px rgba(27, 94, 32, 0.08) !important;
         border: 1px solid #1b5e20 !important;
     }
-
-    /* Tamaños ajustados */
-    .modo-inicio button { font-size: 85px !important; height: 380px !important; }
-    .modo-pestana button { font-size: 26px !important; height: 100px !important; border-bottom: 5px solid #1b5e20 !important; border-radius: 0 !important; padding: 10px !important; }
-
+    /* Tamaños ajustados y responsivos */
+    .modo-inicio button {
+        font-size: 85px !important;
+        height: 380px !important;
+    }
+    .modo-pestana button {
+        font-size: 26px !important;
+        height: 100px !important;
+        border-bottom: 5px solid #1b5e20 !important;
+        border-radius: 0 !important;
+        padding: 10px !important;
+    }
     /* Dataframe y Filtros */
-    [data-testid="stDataFrame"] { border-radius: 20px; background: white; border: 1px solid rgba(0,0,0,0.05); overflow: hidden; }
-    .stSelectbox div[data-baseweb="select"] { border-radius: 12px !important; border: 1px solid #ddd !important; }
+    [data-testid="stDataFrame"] {
+        border-radius: 20px;
+        background: white;
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+        font-size: 1rem;
+    }
+    .stSelectbox div[data-baseweb="select"] {
+        border-radius: 12px !important;
+        border: 1px solid #ddd !important;
+    }
+    /* Responsividad general */
+    @media (max-width: 1200px) {
+        .modo-inicio button { font-size: 60px !important; height: 250px !important; }
+        .titulo-censo { font-size: 2.1rem; }
+    }
+    @media (max-width: 900px) {
+        .modo-inicio button { font-size: 38px !important; height: 120px !important; }
+        .header-container { flex-direction: column; gap: 10px; }
+        .titulo-censo { font-size: 1.5rem; }
+    }
+    @media (max-width: 700px) {
+        .stApp { padding: 0 2vw; }
+        .header-container { flex-direction: column; gap: 5px; padding-top: 10px; }
+        .titulo-censo { font-size: 1.1rem; }
+        .badge-total, .badge-sector { font-size: 0.7rem; padding: 3px 8px; }
+        .modo-inicio button, .modo-pestana button {
+            font-size: 16px !important;
+            height: 48px !important;
+            padding: 6px 2px !important;
+        }
+        /* Forzar apilado de columnas de Streamlit */
+        section[data-testid="column"] {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+        /* DataFrame: scroll horizontal en móvil */
+        [data-testid="stDataFrame"] {
+            font-size: 0.8rem;
+            overflow-x: auto !important;
+            min-width: 320px;
+            max-width: 100vw;
+        }
+        /* Ajustar selectores y entradas */
+        .stSelectbox div[data-baseweb="select"], .stTextInput input {
+            font-size: 0.9rem !important;
+            min-width: 0 !important;
+        }
+    }
     </style>
     """, unsafe_allow_html=True)
 
