@@ -200,10 +200,7 @@ def mostrar_ficha(dni):
                 for i, (k, v) in enumerate(ex.items()): sub_c[i % 3].write(f"**{k}:** {v}")
     except: pass
     
-    if st.button("Finalizar Consulta"):
-        for key in list(st.session_state.keys()):
-            if key.startswith("tab_"): del st.session_state[key]
-        st.rerun()
+    # Botón de finalizar consulta eliminado, se usa solo el cierre (X) del diálogo
 
 # 4. CARGA DE DATOS (REFORZADO)
 with st.sidebar:
