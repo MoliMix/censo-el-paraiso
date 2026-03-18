@@ -264,10 +264,11 @@ def set_rubro(name):
     for key in list(st.session_state.keys()):
         if key.startswith("tab_"): del st.session_state[key]
     st.session_state.r_sel = name
+    st.session_state.scroll_to_rubro = True
 
 # Render de Rubros (Glassmorphism)
 clase_v = "modo-pestana" if st.session_state.r_sel else "modo-inicio"
-st.markdown(f'<div class="{clase_v}">', unsafe_allow_html=True)
+st.markdown(f'<div class="{clase_v}" id="rubro-selector">', unsafe_allow_html=True)
 c1, c2, c3, c4, c5 = st.columns(5)
 if c1.button("☕\nCAFÉ"): set_rubro("Café")
 if c2.button("🍫\nCACAO"): set_rubro("Cacao")
@@ -275,6 +276,18 @@ if c3.button("🚜\nGRANOS BÁSICOS"): set_rubro("Granos Básicos")
 if c4.button("🥩\nGANADERÍA"): set_rubro("Ganadería")
 if c5.button("🥬\nHORTALIZAS"): set_rubro("Hortalizas y Legumbres")
 st.markdown('</div>', unsafe_allow_html=True)
+
+# Scroll automático al seleccionar rubro
+if st.session_state.get("scroll_to_rubro", False):
+    st.markdown("""
+    <script>
+    setTimeout(function() {
+        var el = document.getElementById('rubro-filtros');
+        if (el) { el.scrollIntoView({behavior: 'smooth', block: 'start'}); }
+    }, 300);
+    </script>
+    """, unsafe_allow_html=True)
+    st.session_state.scroll_to_rubro = False
 
 # 6. BÚSQUEDA Y CONSULTAS
 if not st.session_state.r_sel:
@@ -288,8 +301,9 @@ if not st.session_state.r_sel:
             if len(sel_g.selection.rows) > 0: mostrar_ficha(df_g.iloc[sel_g.selection.rows[0]]['IDENTIDAD'])
 else:
     # SECCIÓN DE RUBRO SELECCIONADO
-    total_rubro = pd.read_sql("SELECT COUNT(*) as total FROM productores WHERE rubro=?", conn, params=(st.session_state.r_sel,)).iloc[0]['total']
-    
+    total_rubro = pd.read_sql("SELECT COUNT(*) as total FROM productores WHERE rubro=", conn, params=(st.session_state.r_sel,)).iloc[0]['total']
+    # Marcador para scroll automático
+    st.markdown('<div id="rubro-filtros"></div>', unsafe_allow_html=True)
     col_back, col_tit = st.columns([1, 4])
     with col_back:
         if st.button("⬅️ INICIO"):
@@ -301,12 +315,12 @@ else:
     # Filtros Sectoriales
     col_f1, col_f2, col_f3 = st.columns(3)
     with col_f1:
-        ml = pd.read_sql("SELECT DISTINCT municipio FROM productores WHERE rubro=?", conn, params=(st.session_state.r_sel,))['municipio'].tolist()
+        ml = pd.read_sql("SELECT DISTINCT municipio FROM productores WHERE rubro=", conn, params=(st.session_state.r_sel,))['municipio'].tolist()
         mv = st.selectbox("📍 SELECCIONE MUNICIPIO:", ["-- Seleccione --"] + ml, key="msel_rubro")
     with col_f2:
         av = "-- Todas --"
         if mv != "-- Seleccione --":
-            al = pd.read_sql("SELECT DISTINCT aldea FROM productores WHERE rubro=? AND municipio=?", conn, params=(st.session_state.r_sel, mv))['aldea'].tolist()
+            al = pd.read_sql("SELECT DISTINCT aldea FROM productores WHERE rubro=? AND municipio=", conn, params=(st.session_state.r_sel, mv))['aldea'].tolist()
             av = st.selectbox(f"🏡 ALDEAS EN {mv.upper()}:", ["-- Todas --"] + al, key="asel_rubro")
     with col_f3:
         bn = st.text_input("🔍 FILTRAR POR NOMBRE:", key="bn_rubro")
