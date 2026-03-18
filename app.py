@@ -171,34 +171,33 @@ def validar_geoposicion_hn(extra_data):
 @st.dialog("EXPEDIENTE TÉCNICO", width="large")
 def mostrar_ficha(dni):
     p = pd.read_sql("SELECT * FROM productores WHERE dni = ?", conn, params=(dni,)).iloc[0]
-    st.markdown(f"<h2 style='color:#1b5e20; border-bottom: 3px solid #1b5e20; padding-bottom:10px;'>{p['nombre']}</h2>", unsafe_allow_html=True)
-    
-    c1, c2, c3, c4 = st.columns(4)
-    c1.markdown(f"**IDENTIDAD**\n\n{p['dni']}")
-    c2.markdown(f"**MUNICIPIO**\n\n{p['municipio']}")
-    c3.markdown(f"**ALDEA**\n\n{p['aldea']}")
-    c4.markdown(f"**PROYECTO**\n\n{p['riego']}")
-    
-    st.divider()
+    st.markdown(f"<h3 style='color:#1b5e20; border-bottom:2px solid #1b5e20; padding-bottom:6px; margin-bottom:10px; font-size:1.2rem;'>{p['nombre']}</h3>", unsafe_allow_html=True)
+    # Mostrar datos en una sola columna en móviles
+    st.markdown(f"""
+    <div style='display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start; font-size: 0.98rem;'>
+        <div><b>ID:</b> {p['dni']}</div>
+        <div><b>Municipio:</b> {p['municipio']}</div>
+        <div><b>Aldea:</b> {p['aldea']}</div>
+        <div><b>Proyecto:</b> {p['riego']}</div>
+    </div>
+    <hr style='margin:10px 0 8px 0; border:0; border-top:1px solid #1b5e20;'>
+    """, unsafe_allow_html=True)
     try:
         ex = json.loads(p['extra'])
         if ex:
             pos_valida = validar_geoposicion_hn(ex)
             if pos_valida:
-                col_i, col_m = st.columns([1.8, 1])
-                with col_i:
-                    st.markdown("**INFORMACIÓN COMPLEMENTARIA:**")
-                    sub_c = st.columns(2)
-                    for i, (k, v) in enumerate(ex.items()): sub_c[i % 2].write(f"**{k}:** {v}")
-                with col_m:
-                    st.markdown("**LOCALIZACIÓN:**")
-                    url_map = f"https://www.google.com/maps?q={pos_valida[0]},{pos_valida[1]}"
-                    st.link_button("📍 UBICACIÓN SATELITAL", url_map, use_container_width=True)
+                st.markdown("<b>Info extra:</b>", unsafe_allow_html=True)
+                for k, v in ex.items():
+                    st.markdown(f"<div style='font-size:0.95rem; margin-bottom:2px;'><b>{k}:</b> {v}</div>", unsafe_allow_html=True)
+                url_map = f"https://www.google.com/maps?q={pos_valida[0]},{pos_valida[1]}"
+                st.link_button("📍 Ubicación", url_map, use_container_width=True)
             else:
-                st.markdown("**INFORMACIÓN COMPLEMENTARIA:**")
-                sub_c = st.columns(3)
-                for i, (k, v) in enumerate(ex.items()): sub_c[i % 3].write(f"**{k}:** {v}")
-    except: pass
+                st.markdown("<b>Info extra:</b>", unsafe_allow_html=True)
+                for k, v in ex.items():
+                    st.markdown(f"<div style='font-size:0.95rem; margin-bottom:2px;'><b>{k}:</b> {v}</div>", unsafe_allow_html=True)
+    except:
+        pass
     
     # Botón de finalizar consulta eliminado, se usa solo el cierre (X) del diálogo
 
