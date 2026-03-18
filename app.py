@@ -277,17 +277,16 @@ if c4.button("🥩\nGANADERÍA"): set_rubro("Ganadería")
 if c5.button("🥬\nHORTALIZAS"): set_rubro("Hortalizas y Legumbres")
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Scroll automático al seleccionar rubro
-if st.session_state.get("scroll_to_rubro", False):
+# Scroll automático siempre que haya un rubro seleccionado
+if st.session_state.r_sel:
     st.markdown("""
     <script>
     setTimeout(function() {
         var el = document.getElementById('rubro-filtros');
         if (el) { el.scrollIntoView({behavior: 'smooth', block: 'start'}); }
-    }, 300);
+    }, 200);
     </script>
     """, unsafe_allow_html=True)
-    st.session_state.scroll_to_rubro = False
 
 # 6. BÚSQUEDA Y CONSULTAS
 if not st.session_state.r_sel:
