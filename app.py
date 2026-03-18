@@ -9,53 +9,50 @@ st.set_page_config(page_title="Censo El Paraíso", layout="wide", initial_sideba
 
 st.markdown("""
     <style>
-    /* Google Fonts para títulos y textos */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+    /* Fondo con degradado sofisticado */
     .stApp {
         background: linear-gradient(135deg, #e9f0ec 0%, #e2e8e9 100%);
         font-family: 'Inter', 'Segoe UI', sans-serif;
-        min-height: 100vh;
     }
+    
     .header-container {
         display: flex;
-        flex-wrap: wrap;
         justify-content: center;
         align-items: center;
         gap: 20px;
         margin-bottom: 35px;
         padding-top: 20px;
-        text-align: center;
     }
+
     .titulo-censo {
-        color: #1b5e20;
-        font-weight: 900;
-        font-size: 2.8rem;
-        margin: 0;
+        color: #1b5e20; font-weight: 900; font-size: 2.8rem; margin: 0;
         letter-spacing: -1px;
-        font-family: 'Inter', 'Segoe UI', sans-serif;
     }
+
+    /* ETIQUETAS DE CONTEO ELEGANTES */
     .badge-total {
         background-color: #1b5e20;
         color: white;
         padding: 6px 18px;
         border-radius: 30px;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 700;
         box-shadow: 0 4px 12px rgba(27, 94, 32, 0.2);
         text-transform: uppercase;
-        letter-spacing: 1px;
     }
+
     .badge-sector {
         background: rgba(255, 255, 255, 0.7);
         color: #1b5e20;
         border: 1px solid rgba(27, 94, 32, 0.3);
         padding: 4px 14px;
         border-radius: 20px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 700;
         margin-left: 10px;
     }
-    /* Botones responsivos y glassmorphism */
+    
+    /* TARJETAS DE RUBRO: EL SALTO A LA ELEGANCIA */
     div.stButton > button {
         border: 1px solid rgba(255, 255, 255, 0.5) !important;
         background: rgba(255, 255, 255, 0.6) !important;
@@ -69,76 +66,22 @@ st.markdown("""
         text-transform: uppercase !important;
         letter-spacing: 2px !important;
         font-weight: 800 !important;
-        font-family: 'Inter', 'Segoe UI', sans-serif;
     }
+    
     div.stButton > button:hover {
         background: #ffffff !important;
         transform: translateY(-12px) !important;
         box-shadow: 0 20px 40px rgba(27, 94, 32, 0.08) !important;
         border: 1px solid #1b5e20 !important;
     }
-    /* Tamaños ajustados y responsivos */
-    .modo-inicio button {
-        font-size: 85px !important;
-        height: 380px !important;
-    }
-    .modo-pestana button {
-        font-size: 26px !important;
-        height: 100px !important;
-        border-bottom: 5px solid #1b5e20 !important;
-        border-radius: 0 !important;
-        padding: 10px !important;
-    }
+
+    /* Tamaños ajustados */
+    .modo-inicio button { font-size: 85px !important; height: 380px !important; }
+    .modo-pestana button { font-size: 26px !important; height: 100px !important; border-bottom: 5px solid #1b5e20 !important; border-radius: 0 !important; padding: 10px !important; }
+
     /* Dataframe y Filtros */
-    [data-testid="stDataFrame"] {
-        border-radius: 20px;
-        background: white;
-        border: 1px solid rgba(0,0,0,0.05);
-        overflow: hidden;
-        font-size: 1rem;
-    }
-    .stSelectbox div[data-baseweb="select"] {
-        border-radius: 12px !important;
-        border: 1px solid #ddd !important;
-    }
-    /* Responsividad general */
-    @media (max-width: 1200px) {
-        .modo-inicio button { font-size: 60px !important; height: 250px !important; }
-        .titulo-censo { font-size: 2.1rem; }
-    }
-    @media (max-width: 900px) {
-        .modo-inicio button { font-size: 38px !important; height: 120px !important; }
-        .header-container { flex-direction: column; gap: 10px; }
-        .titulo-censo { font-size: 1.5rem; }
-    }
-    @media (max-width: 700px) {
-        .stApp { padding: 0 2vw; }
-        .header-container { flex-direction: column; gap: 5px; padding-top: 10px; }
-        .titulo-censo { font-size: 1.1rem; }
-        .badge-total, .badge-sector { font-size: 0.7rem; padding: 3px 8px; }
-        .modo-inicio button, .modo-pestana button {
-            font-size: 16px !important;
-            height: 48px !important;
-            padding: 6px 2px !important;
-        }
-        /* Forzar apilado de columnas de Streamlit */
-        section[data-testid="column"] {
-            flex-direction: column !important;
-            align-items: stretch !important;
-        }
-        /* DataFrame: scroll horizontal en móvil */
-        [data-testid="stDataFrame"] {
-            font-size: 0.8rem;
-            overflow-x: auto !important;
-            min-width: 320px;
-            max-width: 100vw;
-        }
-        /* Ajustar selectores y entradas */
-        .stSelectbox div[data-baseweb="select"], .stTextInput input {
-            font-size: 0.9rem !important;
-            min-width: 0 !important;
-        }
-    }
+    [data-testid="stDataFrame"] { border-radius: 20px; background: white; border: 1px solid rgba(0,0,0,0.05); overflow: hidden; }
+    .stSelectbox div[data-baseweb="select"] { border-radius: 12px !important; border: 1px solid #ddd !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -171,35 +114,39 @@ def validar_geoposicion_hn(extra_data):
 @st.dialog("EXPEDIENTE TÉCNICO", width="large")
 def mostrar_ficha(dni):
     p = pd.read_sql("SELECT * FROM productores WHERE dni = ?", conn, params=(dni,)).iloc[0]
-    st.markdown(f"<h3 style='color:#1b5e20; border-bottom:2px solid #1b5e20; padding-bottom:6px; margin-bottom:10px; font-size:1.2rem;'>{p['nombre']}</h3>", unsafe_allow_html=True)
-    # Mostrar datos en una sola columna en móviles
-    st.markdown(f"""
-    <div style='display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start; font-size: 0.98rem;'>
-        <div><b>ID:</b> {p['dni']}</div>
-        <div><b>Municipio:</b> {p['municipio']}</div>
-        <div><b>Aldea:</b> {p['aldea']}</div>
-        <div><b>Proyecto:</b> {p['riego']}</div>
-    </div>
-    <hr style='margin:10px 0 8px 0; border:0; border-top:1px solid #1b5e20;'>
-    """, unsafe_allow_html=True)
+    st.markdown(f"<h2 style='color:#1b5e20; border-bottom: 3px solid #1b5e20; padding-bottom:10px;'>{p['nombre']}</h2>", unsafe_allow_html=True)
+    
+    c1, c2, c3, c4 = st.columns(4)
+    c1.markdown(f"**IDENTIDAD**\n\n{p['dni']}")
+    c2.markdown(f"**MUNICIPIO**\n\n{p['municipio']}")
+    c3.markdown(f"**ALDEA**\n\n{p['aldea']}")
+    c4.markdown(f"**PROYECTO**\n\n{p['riego']}")
+    
+    st.divider()
     try:
         ex = json.loads(p['extra'])
         if ex:
             pos_valida = validar_geoposicion_hn(ex)
             if pos_valida:
-                st.markdown("<b>Info extra:</b>", unsafe_allow_html=True)
-                for k, v in ex.items():
-                    st.markdown(f"<div style='font-size:0.95rem; margin-bottom:2px;'><b>{k}:</b> {v}</div>", unsafe_allow_html=True)
-                url_map = f"https://www.google.com/maps?q={pos_valida[0]},{pos_valida[1]}"
-                st.link_button("📍 Ubicación", url_map, use_container_width=True)
+                col_i, col_m = st.columns([1.8, 1])
+                with col_i:
+                    st.markdown("**INFORMACIÓN COMPLEMENTARIA:**")
+                    sub_c = st.columns(2)
+                    for i, (k, v) in enumerate(ex.items()): sub_c[i % 2].write(f"**{k}:** {v}")
+                with col_m:
+                    st.markdown("**LOCALIZACIÓN:**")
+                    url_map = f"https://www.google.com/maps?q={pos_valida[0]},{pos_valida[1]}"
+                    st.link_button("📍 UBICACIÓN SATELITAL", url_map, use_container_width=True)
             else:
-                st.markdown("<b>Info extra:</b>", unsafe_allow_html=True)
-                for k, v in ex.items():
-                    st.markdown(f"<div style='font-size:0.95rem; margin-bottom:2px;'><b>{k}:</b> {v}</div>", unsafe_allow_html=True)
-    except:
-        pass
+                st.markdown("**INFORMACIÓN COMPLEMENTARIA:**")
+                sub_c = st.columns(3)
+                for i, (k, v) in enumerate(ex.items()): sub_c[i % 3].write(f"**{k}:** {v}")
+    except: pass
     
-    # Botón de finalizar consulta eliminado, se usa solo el cierre (X) del diálogo
+    if st.button("Finalizar Consulta"):
+        for key in list(st.session_state.keys()):
+            if key.startswith("tab_"): del st.session_state[key]
+        st.rerun()
 
 # 4. CARGA DE DATOS (REFORZADO)
 with st.sidebar:
@@ -264,11 +211,10 @@ def set_rubro(name):
     for key in list(st.session_state.keys()):
         if key.startswith("tab_"): del st.session_state[key]
     st.session_state.r_sel = name
-    st.session_state.scroll_to_rubro = True
 
 # Render de Rubros (Glassmorphism)
 clase_v = "modo-pestana" if st.session_state.r_sel else "modo-inicio"
-st.markdown(f'<div class="{clase_v}" id="rubro-selector">', unsafe_allow_html=True)
+st.markdown(f'<div class="{clase_v}">', unsafe_allow_html=True)
 c1, c2, c3, c4, c5 = st.columns(5)
 if c1.button("☕\nCAFÉ"): set_rubro("Café")
 if c2.button("🍫\nCACAO"): set_rubro("Cacao")
@@ -276,17 +222,6 @@ if c3.button("🚜\nGRANOS BÁSICOS"): set_rubro("Granos Básicos")
 if c4.button("🥩\nGANADERÍA"): set_rubro("Ganadería")
 if c5.button("🥬\nHORTALIZAS"): set_rubro("Hortalizas y Legumbres")
 st.markdown('</div>', unsafe_allow_html=True)
-
-# Scroll automático siempre que haya un rubro seleccionado
-if st.session_state.r_sel:
-    st.markdown("""
-    <script>
-    setTimeout(function() {
-        var el = document.getElementById('rubro-filtros');
-        if (el) { el.scrollIntoView({behavior: 'smooth', block: 'start'}); }
-    }, 200);
-    </script>
-    """, unsafe_allow_html=True)
 
 # 6. BÚSQUEDA Y CONSULTAS
 if not st.session_state.r_sel:
@@ -300,9 +235,8 @@ if not st.session_state.r_sel:
             if len(sel_g.selection.rows) > 0: mostrar_ficha(df_g.iloc[sel_g.selection.rows[0]]['IDENTIDAD'])
 else:
     # SECCIÓN DE RUBRO SELECCIONADO
-    total_rubro = pd.read_sql("SELECT COUNT(*) as total FROM productores WHERE rubro=", conn, params=(st.session_state.r_sel,)).iloc[0]['total']
-    # Marcador para scroll automático
-    st.markdown('<div id="rubro-filtros"></div>', unsafe_allow_html=True)
+    total_rubro = pd.read_sql("SELECT COUNT(*) as total FROM productores WHERE rubro=?", conn, params=(st.session_state.r_sel,)).iloc[0]['total']
+    
     col_back, col_tit = st.columns([1, 4])
     with col_back:
         if st.button("⬅️ INICIO"):
@@ -314,12 +248,12 @@ else:
     # Filtros Sectoriales
     col_f1, col_f2, col_f3 = st.columns(3)
     with col_f1:
-        ml = pd.read_sql("SELECT DISTINCT municipio FROM productores WHERE rubro=", conn, params=(st.session_state.r_sel,))['municipio'].tolist()
+        ml = pd.read_sql("SELECT DISTINCT municipio FROM productores WHERE rubro=?", conn, params=(st.session_state.r_sel,))['municipio'].tolist()
         mv = st.selectbox("📍 SELECCIONE MUNICIPIO:", ["-- Seleccione --"] + ml, key="msel_rubro")
     with col_f2:
         av = "-- Todas --"
         if mv != "-- Seleccione --":
-            al = pd.read_sql("SELECT DISTINCT aldea FROM productores WHERE rubro=? AND municipio=", conn, params=(st.session_state.r_sel, mv))['aldea'].tolist()
+            al = pd.read_sql("SELECT DISTINCT aldea FROM productores WHERE rubro=? AND municipio=?", conn, params=(st.session_state.r_sel, mv))['aldea'].tolist()
             av = st.selectbox(f"🏡 ALDEAS EN {mv.upper()}:", ["-- Todas --"] + al, key="asel_rubro")
     with col_f3:
         bn = st.text_input("🔍 FILTRAR POR NOMBRE:", key="bn_rubro")
